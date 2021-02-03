@@ -1,0 +1,103 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+.cardContainer {
+  display: vertical;
+  text-align: center;
+}
+.title {
+  display: flex;
+  background-color: green;
+  justify-content: space-between;
+  width: 92rem;
+}
+.container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 4rem;
+}
+.movie-poster {
+  width: 20rem;
+  height: 30rem;
+  object-fit: cover;
+  background-color: #eee;
+  border-top-left-radius: 0.7rem;
+  border-top-right-radius: 0.7rem;
+}
+.movie-rate {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  align-items: center;
+}
+.movie-rate .rate {
+  display: flex;
+  align-items: center;
+}
+.movie-title {
+}
+.like-icon {
+  cursor: pointer;
+}
+.like-icon-liked {
+  cursor: pointer;
+  color: red;
+}
+.movie-card {
+  background-color: #fff;
+  box-shadow: 0 2rem 5rem 1rem rgba(0, 0, 0, 0.1);
+  font-size: 1.8rem;
+  width: 20rem;
+  height: 40rem;
+  border-radius: 0.7rem;
+  margin: 30 30rem;
+  text-align: center;
+}
+.rate-page {
+  display: flex;
+}
+.poster {
+  width: 20rem;
+  height: 30rem;
+}
+.rate {
+  display: vertical;
+}
+.rate-success {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.rate-container {
+  height: 500px;
+  max-width: 800px;
+  background-color: white;
+  position: relative;
+}
+.button {
+  font-size: 1.5rem;
+  margin-left: 3rem;
+  background-color: blue;
+}
+.log-in {
+  bottom: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+.page {
+  display: flex;
+  justify-content: space-between;
+  left: 50rem;
+  align-items: center;
+  width: 500px;
+  margin: 1rem auto;
+  margin-left: 30rem;
+}
