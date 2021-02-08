@@ -38,20 +38,25 @@ const Header = (props) => {
             </button>
           </Link>
         </div>
-        <div className="log-in">
-          <Link to="/log-in-page">
-            <div onClick={(e) => props.loadLogIn()}>
-              <span>{props.logIn ? props.userName : "plz log in"}</span>
-            </div>
-          </Link>
-          <Link to="/logout">
-            <button
-              onClick={(e) => props.logOut()}
-              style={{ display: `${props.logOutDisplay}` }}
-            >
-              log out
-            </button>
-          </Link>
+
+        <div className="log-in-dir">
+          <div className="log-in-button">
+            <Link to="/log-in-page">
+              <div onClick={(e) => props.loadLogIn()}>
+                <span>{props.logIn ? props.userName : "plz log in"}</span>
+              </div>
+            </Link>
+            <Link to="/logout">
+              <button
+                onClick={(e) => props.logOut()}
+                style={{ display: `${props.logOutDisplay}` }}
+                // style={{display: ""}}
+              >
+                log out
+              </button>
+            </Link>
+          </div>
+          
         </div>
       </div>
 
@@ -66,12 +71,6 @@ const Header = (props) => {
           <option value="upcoming">Upcoming</option>
         </select>
       </div>
-
-      {/* <div className="page" style={{ display: `${props.pageDisplay}` }}>
-        <button onClick={(e) => props.prevPage(props.page)}>prev</button>
-        <span>{props.page} / 50</span>
-        <button onClick={(e) => props.nextPage(props.page)}>next</button>
-      </div> */}
     </div>
   );
 };
