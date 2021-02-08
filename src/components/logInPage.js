@@ -2,11 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import Loader from "./loader";
 import { Redirect, Link, Switch } from "react-router-dom";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
 
-const Container = styled.div`
-  width: 400px;
-  margin: auto;
-`;
+
 
 export default class FetchLogInData extends React.Component {
   state = {
@@ -34,10 +33,6 @@ export default class FetchLogInData extends React.Component {
     }
   }
 
-  // componentWillUnmount(){
-  //   const next = {...this.state, user}
-  // }
-
   fetchSessionId = () => {
     return fetch(
       "https://api.themoviedb.org/3/authentication/session/new?api_key=31846cd2c427dd933fa6849953b3974d",
@@ -53,10 +48,7 @@ export default class FetchLogInData extends React.Component {
     )
       .then((resp) => resp.json())
       .then((resp) => {
-        console.log("session", resp);
-        this.setState({ session_id: resp.session_id }, () => {
-          console.log(this.state.session_id);
-        });
+        this.setState({ session_id: resp.session_id });
       });
   };
   getToken = () => {
@@ -70,11 +62,6 @@ export default class FetchLogInData extends React.Component {
       });
   };
   getSessionId = () => {
-    console.log({
-      username: `${this.state.userName}`,
-      password: `${this.state.passWord}`,
-      request_token: `${this.state.request_token}`
-    });
     return fetch(
       "https://api.themoviedb.org/3/authentication/token/validate_with_login?api_key=31846cd2c427dd933fa6849953b3974d",
       {
@@ -99,16 +86,11 @@ export default class FetchLogInData extends React.Component {
                 isLoading: false
               });
             })
-          : this.setState(
-              {
-                ...this.state,
-                getError: true,
-                isLoading: false
-              },
-              () => {
-                console.log(this.state.getError);
-              }
-            );
+          : this.setState({
+              ...this.state,
+              getError: true,
+              isLoading: false
+            });
       });
   };
   fetchAccount = () => {
@@ -122,7 +104,6 @@ export default class FetchLogInData extends React.Component {
           session_id: this.state.session_id,
           accountId: resp.id
         });
-        console.log("account", resp);
       })
       .then(() => {
         this.setState({ isLoading: false }, () => {});
@@ -131,50 +112,61 @@ export default class FetchLogInData extends React.Component {
 
   render() {
     return (
-      <Container>
+      
         <div className="log-panel">
-          <h1> Log In</h1>
-          <div
-            className="error-message"
-            style={{ display: this.state.getError ? "" : "None" }}
-          >
-            Failed to log in
-          </div>
-          <h2>User Name</h2>
-          <input
-            onChange={(e) => {
-              this.setState({ userName: e.target.value });
-            }}
-          />
-          <h2>Password</h2>
-          <input
-            onChange={(e) => {
-              this.setState({ passWord: e.target.value });
-            }}
-            // type="password"
-          />
-
-          <button
-            onClick={(e) => {
-              this.getToken().then(() => {
-                this.getSessionId();
-              });
-            }}
-          >
-            {this.state.isLoading && <Loader />}
-            {!this.state.isLoading && "log in"}
-          </button>
-          <Link to="/">
+          <div className="log-in">
+            <h1> Log In</h1>
             <div
-              className="success"
-              style={{ display: this.state.session_id ? "" : "none" }}
-              onClick={(e) => this.fetchAccount()}
+              className="error-message"
+              style={{ display: this.state.getError ? "" : "None" }}
             >
-              &#10003;Log In Success. if not redirect, click to redirect...
+              Failed to log in
             </div>
-          </Link>
+            <div className="username">
+              <TextField
+              id="standard-basic"
+              label="User Name"
+              fullWidth="true"
+              onChange={(e) => this.setState({ userName: e.target.value })}
+            /></div>
+            
+            <div className="password">
+              <TextField
+              id="standard-basic"
+              label="Password"
+              fullWidth="true"
+              onChange={(e) => {
+                this.setState({ passWord: e.target.value });
+              }}
+              type="password"
+            /></div>
+            
+
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth="true"
+              onClick={(e) => {
+                this.getToken().then(() => {
+                  this.getSessionId();
+                });
+              }}
+            >
+              {this.state.isLoading && <Loader />}
+              {!this.state.isLoading && "log in"}
+            </Button>
+            <Link to="/">
+              <div
+                className="success"
+                style={{ display: this.state.session_id ? "" : "none" }}
+                onClick={(e) => this.fetchAccount()}
+              >
+                &#10003;Log In Success. if not redirect, click to redirect...
+              </div>
+            </Link>
+          </div>
         </div>
-      </Container>
+      
     );
   }
 }
