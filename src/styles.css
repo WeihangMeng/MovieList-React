@@ -10,7 +10,7 @@
   display: flex;
   background-color: green;
   justify-content: space-between;
-  width: 92rem;
+  width: auto;
 }
 .container {
   display: grid;
@@ -35,8 +35,7 @@
   display: flex;
   align-items: center;
 }
-.movie-title {
-}
+
 .like-icon {
   cursor: pointer;
 }
@@ -88,16 +87,34 @@
   background-color: blue;
 }
 .log-in {
+  display: vertical;
+  justify-content: center;
+  text-align: center;
   bottom: 0;
   margin-bottom: 1rem;
   font-size: 1.5rem;
+  width: 30rem;
 }
 .page {
   display: flex;
   justify-content: space-between;
-  left: 50rem;
+  /* left: 80rem; */
   align-items: center;
   width: 500px;
   margin: 1rem auto;
-  margin-left: 30rem;
+  margin-left: auto;
+}
+.log-panel {
+  display: vertical;
+  width: 10rem;
+  /* margin: 1rem auto; */
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 40rem;
+}
+.log-in-dir{
+  display: flex;
+  align-items: center;
+  /* justify-content: baseline; */
+  margin-bottom: 0rem;
 }
