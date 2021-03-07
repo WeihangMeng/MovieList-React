@@ -1,19 +1,21 @@
 import React from "react";
 import { Link, withRouter } from "react-router-dom";
 const RatedPage = (props) => {
-  const movieCard = props.movieList.filter((movie) => {
-    if (props.ratedList.some((ratedMovie) => ratedMovie.id == movie.id)) {
-      return movie;
-    }
-  });
-  console.log("on rated page");
-  console.log("new rated list", props.ratedList);
+  
+  const ratedListCard = props.ratedList.map((movie) => {
+    return {title: movie.original_title,
+      poster_path: movie.poster_path,
+      vote_average: movie.vote_average,
+      id: movie.id,
+      rating: movie.rating}
+  })
+  
 
   return !props.isLogging ? (
     <h1> Plz log in first</h1>
   ) : (
     <div className="container">
-      {movieCard.map((movie) => {
+      {ratedListCard.map((movie) => {
         return (
           <div key={movie.id} className="movie-card">
             <img
@@ -36,9 +38,7 @@ const RatedPage = (props) => {
                 <span style={{ color: "#F9F504" }}>&#9733;</span>
                 <span>
                   {`${
-                    props.ratedList.find(
-                      (ratedMovie) => ratedMovie.id == movie.id
-                    ).rate
+                    movie.rating
                   } / `}
                 </span>
                 <span>{movie.vote_average}</span>

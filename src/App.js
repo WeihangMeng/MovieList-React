@@ -4,11 +4,17 @@ import Header from "./components/header";
 import styled from "styled-components";
 import CardContainer from "./components/container";
 import { Redirect, BrowserRouter, Route, Link, Switch } from "react-router-dom";
-import LikedListPage from "./components/likedLIstPage";
+import LikedListPage from "./components/likedListPage";
 import Loader from "./components/loader";
 import RatedPage from "./components/ratedPage";
 import LogInPage from "./components/logInPage";
 import DetailPage from "./components/detailPage";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const Container = styled.div`
   width: 400px;
@@ -20,25 +26,32 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      //list
       movieList: [],
-      isLoading: false,
-      movie_cat: "all",
-
-      page: 1,
       likedListCard: [],
-      filter: "popular",
       movieCard: [],
       likedList: [],
       ratedList: [],
+
+      //string
+      movie_cat: "all",
+      page: 1,
+      filter: "popular",
       currentid: null,
-      userRate: 0,
-      isLogging: false,
-      userName: "",
-      session_id: "",
       accountSelect: "None",
       currentAddress: "/",
-      accountID: 9970422,
-      rateSuccess: false
+      filterDisplay: "",
+      //boolen
+      isLogging: false,
+      isLoading: false,
+      liked: false,
+      rated: false,
+
+      //user info
+      session_id: "",
+      userName: "louislithta",
+      userRate: 0,
+      accountID: null
     };
   }
 
@@ -68,9 +81,8 @@ export default class App extends React.Component {
       baseUrl + this.state.filter + apiKey + `&page=${this.state.page}`
     );
     if (localStorage.getItem("user")) {
-      // console.log(localStorage.getItem("user"));
       const userInfo = JSON.parse(localStorage.getItem("user"));
-      // console.log("mount", JSON.parse(userInfo));
+
       this.setState(
         {
           ...this.state,
@@ -80,40 +92,26 @@ export default class App extends React.Component {
           isLogging: true
         },
         () => {
-          this.fetchLikeList().then(() => {
-            this.updataLikedCard();
-          });
+          this.fetchLikeList();
           this.fetchRateList();
         }
       );
     }
   }
-  // componentDidUpdate(prev) {
-  //   // this.fetchLikeList();
-  //   if (this.state.isLogging && this.state.likedList !== prev.likedList) {
-  //     this.fetchLikeList().then(() => {
-  //       this.updataLikedCard();
-  //     });
-  //     //
-  //     if(this.state.isLogging && this.state.ratedList !== prev.ratedList){
-  //       this.fetchRateList();
-  //     }
-  //   }
-  // }
 
   handleDisplayList = (data) => {
     this.setState({ movie_cat: data });
     if (data === "liked" || data === "rated") {
       const next = {
         ...this.state,
-
+        filterDisplay: "none",
         currentAddress: `/${data}`
       };
       this.setState(next);
     } else {
       const next = {
         ...this.state,
-
+        filterDisplay: "",
         currentAddress: "/"
       };
       this.setState(next);
@@ -149,19 +147,16 @@ export default class App extends React.Component {
     // this.fetchData(baseUrl + this.state.filter + apiKey + `&page=${newPage}`);
   };
   handleClickTitle = (id) => {
-    this.setState({ currentid: id }, () => {
-      console.log(this.state.currentdetail);
-    });
+    this.setState({ currentid: id });
   };
   fetchLikeList = () => {
     const url = `https://api.themoviedb.org/3/account/${this.state.accountID}/favorite/movies?api_key=31846cd2c427dd933fa6849953b3974d&session_id=${this.state.session_id}&sort_by=created_at.asc`;
-    console.log(url);
     return fetch(url)
       .then((resp) => resp.json())
       .then((data) => {
         if (data.results) {
-          const likedidList = data.results.map((movie) => movie.id);
-          this.setState({ likedList: likedidList });
+         
+          this.setState({ likedList: data.results });
         }
       });
   };
@@ -174,7 +169,7 @@ export default class App extends React.Component {
     this.setState({ likedListCard: likedListCard });
   };
   postLikeList = (id, move) => {
-    fetch(
+    return fetch(
       `https://api.themoviedb.org/3/account/${this.state.accountID}/favorite?api_key=31846cd2c427dd933fa6849953b3974d&session_id=${this.state.session_id}`,
       {
         method: "POST",
@@ -185,17 +180,13 @@ export default class App extends React.Component {
         }),
         headers: { "content-type": "application/json;charset=utf-8" }
       }
-    )
-      .then((resp) => resp.json())
-      .then((data) => {
-        console.log(data);
-      });
+    ).then((resp) => resp.json());
   };
   handleClickLike = (id) => {
-    const likedMovie = this.state.movieCard.find((movie) => movie.id === id);
-    // console.log(likedMovie);
+    
+    const likedMovie = this.state.movieList.find((movie) => movie.id === id);
     const liked = this.state.likedList.some(
-      (movieid) => movieid === likedMovie.id
+      (movie) => movie.id === id
     );
     this.state.isLogging
       ? liked
@@ -203,25 +194,33 @@ export default class App extends React.Component {
             {
               likedList: [
                 ...this.state.likedList.filter(
-                  (movieid) => movieid !== likedMovie.id
+                  (movie) => movie.id !== id
                 )
               ]
             },
             () => {
-              this.updataLikedCard();
+              // this.updataLikedCard();
               this.postLikeList(id, false);
+              // this.fetchLikeList();
 
               // this.postLikeList(560144);
             }
           )
         : this.setState(
-            { likedList: [...this.state.likedList, likedMovie.id] },
+            {
+              ...this.state,
+              likedList: [...this.state.likedList, likedMovie],
+              liked: true,
+            },
             () => {
-              this.updataLikedCard();
-              this.postLikeList(id, true);
+              
+              this.postLikeList(id, true)
             }
           )
       : alert("plz log in first");
+  };
+  handleCloseLike = () => {
+    this.setState({ liked: false });
   };
   handleLogIn = () => {
     if (!this.state.session_id) {
@@ -252,12 +251,11 @@ export default class App extends React.Component {
       isLogging: true
     };
     this.setState(next, () => {
-      console.log("app's state:", this.state.userName);
-      console.log("app", this.state.session_id);
       this.fetchLikeList().then(() => {
         this.updataLikedCard();
       });
       this.fetchRateList();
+      
     });
     localStorage.setItem(
       "user",
@@ -267,22 +265,16 @@ export default class App extends React.Component {
         userName: this.state.userName
       })
     );
-    console.log("localstorage", localStorage.getItem("user"));
   };
   handleLogOut = () => {
-    this.setState(
-      {
-        ...this.state,
-        accountSelect: "none",
-        session_id: "",
-        userName: "",
-        isLogging: false
-        // currentAddress: "/"
-      },
-      () => {
-        console.log(this.state.currentAddress);
-      }
-    );
+    this.setState({
+      ...this.state,
+      accountSelect: "none",
+      session_id: "",
+      userName: "",
+      isLogging: false
+      // currentAddress: "/"
+    });
     localStorage.clear();
   };
   fetchRateList = () => {
@@ -292,12 +284,8 @@ export default class App extends React.Component {
       .then((resp) => resp.json())
       .then((resp) => {
         if (resp.results) {
-          const ratedList = resp.results.map((movie) => {
-            return { rate: movie.rating, id: movie.id };
-          });
-          this.setState({ ratedList: ratedList }, () => {
-            console.log(this.state.ratedList);
-          });
+         
+          this.setState({ratedList: resp.results});
         }
       });
   };
@@ -310,10 +298,6 @@ export default class App extends React.Component {
         body: JSON.stringify({ value: rate })
       }
     );
-    // .then((resp) => resp.json())
-    // .then((data) => {
-    //   console.log(data);
-    // });
   };
   handleRate = (rate, id) => {
     this.postRatedList(rate, id)
@@ -323,22 +307,22 @@ export default class App extends React.Component {
           if (this.state.ratedList.some((movie) => movie.id === id)) {
             const newRate = this.state.ratedList.map((movie) => {
               if (movie.id === id) {
-                return { rate: rate, id: id };
+                return { ...movie, rating: rate };
               } else {
                 return movie;
               }
             });
-            console.log(newRate);
             this.setState({
               ...this.state,
-              rateSuccess: true,
+              rated: true,
               ratedList: newRate
             });
           } else {
+            const newRate = this.state.movieList.find((movie) => movie.id === id);
             this.setState({
               ...this.state,
-              ratedList: [...this.state.ratedList, { rate: rate, id: id }],
-              rateSuccess: true
+              ratedList: [...this.state.ratedList, {newRate, rating: rate}],
+              rated: true
             });
           }
         }
@@ -347,16 +331,15 @@ export default class App extends React.Component {
         this.setState({ rateSuccess: false });
       });
   };
-  handleRateSuccess = () => {
-    setInterval(this.setState({ rateSuccess: false }), 5000);
-    // this.setState({ rateSuccess: false });
+  handleCloseRate = () => {
+    this.setState({ rated: false });
   };
   handleAddress = (address) => {
     this.setState({ currentAddress: address });
   };
   render() {
     return (
-      <Container>
+      // <Container>
         <BrowserRouter>
           <Header
             cataSelect={this.handleDisplayList}
@@ -369,32 +352,39 @@ export default class App extends React.Component {
             logOutDisplay={this.state.accountSelect}
             logOut={this.handleLogOut}
           />
+          <Snackbar
+            open={this.state.liked}
+            autoHideDuration={3000}
+            onClose={this.handleCloseLike}
+          >
+            <Alert onClose={this.handleCloseLike} severity="success">
+              Liked Success!
+            </Alert>
+          </Snackbar>
+          <Snackbar
+            open={this.state.rated}
+            autoHideDuration={3000}
+            onClose={this.handleCloseRate}
+          >
+            <Alert onClose={this.handleCloseRate} severity="success">
+              Rate Success!
+            </Alert>
+          </Snackbar>
 
-          {/* <div className="container"> */}
           <Switch>
-            {/* <CardContainer
-            movieCard={this.state.movieCard}
-            likedList={this.state.likedList}
-            clickTitle={this.handleClickTitle}
-            clickLike={this.handleClickLike}
-            /> */}
             <Route
               path="/liked"
               render={() => {
                 return (
                   <LikedListPage
-                    // likeListCard={this.state.likedList}
-                    // clickTitle={this.handleClickTitle}
-                    // clickLike={this.handleClickLike}
-                    // page={this.state.page}
-                    // prevPage={this.handlePrev}
-                    // nextPage={this.handleNext}
                     isLogging={this.state.isLogging}
-                    movieCard={this.state.movieCard}
+                    
                     likedList={this.state.likedList}
                     clickTitle={this.handleClickTitle}
                     clickLike={this.handleClickLike}
                     pageDisplay={"none"}
+                    session_id={this.state.session_id}
+                    accountID={this.state.accountID}
                   />
                 );
               }}
@@ -407,7 +397,7 @@ export default class App extends React.Component {
                 return (
                   <CardContainer
                     movieCard={this.state.movieCard}
-                    likedList={this.state.likedListCard}
+                    likedList={this.state.likedList}
                     clickTitle={this.handleClickTitle}
                     clickLike={this.handleClickLike}
                     page={this.state.page}
@@ -418,13 +408,7 @@ export default class App extends React.Component {
                 );
               }}
             />
-            {/* <Route path="/rated" component={RatedPage} /> */}
-            {/* <Route
-              path="/log-in-page"
-              render={() => {
-                return <LogInPage setAccount={this.handleAccount} />;
-              }}
-            /> */}
+
             <Route path="/log-in-page">
               {this.state.session_id ? (
                 <Redirect to={`${this.state.currentAddress}`} />
@@ -456,7 +440,7 @@ export default class App extends React.Component {
                     isLogging={this.state.isLogging}
                     movieList={this.state.movieList}
                     ratedList={this.state.ratedList}
-                    likedList={this.state.likedListCard}
+                    likedList={this.state.likedList}
                     clickTitle={this.handleClickTitle}
                     clickLike={this.handleClickLike}
                   />
@@ -469,7 +453,7 @@ export default class App extends React.Component {
           </Switch>
           {/* </div> */}
         </BrowserRouter>
-      </Container>
+      // </Container>
     );
   }
 }
